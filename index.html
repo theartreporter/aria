@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARIA — Agent Council</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+        }
+
+        .war-room {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #d4af37;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .input-section input {
+            flex: 1;
+            padding: 14px 16px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .input-section input::placeholder {
+            color: #666;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .input-section button {
+            padding: 14px 32px;
+            background-color: #d4af37;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .input-section button:hover {
+            background-color: #e5c158;
+            transform: translateY(-2px);
+        }
+
+        .input-section button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 30px;
+        }
+
+        .agent-card {
+            border-radius: 8px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid;
+            transition: all 0.3s ease;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .agent-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .agent-name {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .agent-role {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 12px;
+        }
+
+        .agent-response {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .loading-text {
+            text-align: center;
+            color: #666;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+
+        .error-text {
+            text-align: center;
+            color: #ff6b6b;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .input-section {
+                flex-direction: column;
+            }
+
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="war-room">
+        <div class="container">
+            <div class="header">
+                <h1>ARIA</h1>
+                <p>Agent Council • Art Advisory Platform</p>
+            </div>
+
+            <div class="input-section">
+                <input 
+                    type="text" 
+                    id="questionInput" 
+                    placeholder="Ask the council about art, collecting, markets..."
+                    onkeypress="if(event.key === 'Enter') convene()"
+                />
+                <button id="conveneBtn" onclick="convene()">Convene</button>
+            </div>
+
+            <div id="responses"></div>
+            <div id="loading" class="loading-text"></div>
+            <div id="error" class="error-text"></div>
+        </div>
+    </div>
+
+    <script>
+        const AGENTS = {
+            maya: {
+                name: 'Maya Chen',
+                role: 'VP of Design',
+                color: '#ec4899'
+            },
+            kai: {
+                name: 'Kai Hoffman',
+                role: 'Software Architect',
+                color: '#3b82f6'
+            },
+            isabelle: {
+                name: 'Isabelle Voss',
+                role: 'Art Dealer & Tastemaker',
+                color: '#10b981'
+            },
+            marcus: {
+                name: 'Marcus Webb',
+                role: 'Art Market Analyst',
+                color: '#f97316'
+            },
+            senna: {
+                name: 'Senna Park',
+                role: 'UX Strategist',
+                color: '#a855f7'
+            }
+        };
+
+        const SYSTEM_PROMPTS = {
+            maya: `You are Maya Chen, VP of Design at Airbnb & Apple. You think deeply about UX, emotional design, and the collector's journey. You speak with warmth and insight about how design shapes the art world. Keep responses to 2-3 sentences.`,
+            kai: `You are Kai Hoffman, Software Architect from Stripe & Notion. You focus on technical feasibility and systems thinking. You're pragmatic and data-driven. Keep responses to 2-3 sentences.`,
+            isabelle: `You are Isabelle Voss with 20 years of gallery experience. You know collectors deeply—their psychology, desires, and market behavior. You speak with authority and passion. Keep responses to 2-3 sentences.`,
+            marcus: `You are Marcus Webb, Art Market Analyst from Sotheby's & Artprice. You're data-driven, focused on auction results and market trends. You speak in facts and analytics. Keep responses to 2-3 sentences.`,
+            senna: `You are Senna Park, UX Strategist for luxury digital experiences. You understand high-net-worth individuals and their expectations. You're strategic and elegant. Keep responses to 2-3 sentences.`
+        };
+
+        async function convene() {
+            const question = document.getElementById('questionInput').value.trim();
+            if (!question) return;
+
+            const conveneBtn = document.getElementById('conveneBtn');
+            const responsesDiv = document.getElementById('responses');
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+
+            conveneBtn.disabled = true;
+            responsesDiv.innerHTML = '';
+            loadingDiv.textContent = 'Convening the council...';
+            errorDiv.textContent = '';
+
+            try {
+                const responses = {};
+
+                for (const [key, agent] of Object.entries(AGENTS)) {
+                    try {
+                        const response = await fetch('/api/chat', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                agent: key,
+                                question: question
+                            })
+                        });
+
+                        const data = await response.json();
+                        responses[key] = data.response || 'No response';
+                    } catch (err) {
+                        responses[key] = 'Error getting response';
+                    }
+                }
+
+                loadingDiv.textContent = '';
+                renderResponses(responses);
+            } catch (err) {
+                errorDiv.textContent = 'Error convening the council. Please try again.';
+                loadingDiv.textContent = '';
+            } finally {
+                conveneBtn.disabled = false;
+            }
+        }
+
+        function renderResponses(responses) {
+            const responsesDiv = document.getElementById('responses');
+            let html = '<div class="agents-grid">';
+
+            for (const [key, agent] of Object.entries(AGENTS)) {
+                const response = responses[key] || '';
+                html += `
+                    <div class="agent-card" style="border-top-color: ${agent.color}">
+                        <div class="agent-name" style="color: ${agent.color}">${agent.name}</div>
+                        <div class="agent-role">${agent.role}</div>
+                        <div class="agent-response">${response}</div>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            responsesDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
