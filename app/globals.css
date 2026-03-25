@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply m-0 p-0 box-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-black text-white font-sans antialiased;
+  }
+
+  h1 {
+    @apply text-4xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  h3 {
+    @apply text-xl font-semibold tracking-tight;
+  }
+
+  button {
+    @apply transition-all duration-200;
+  }
+}
+
+@layer components {
+  /* Gold accent for premium feel */
+  .accent-gold {
+    @apply text-gold;
+  }
+
+  .border-gold {
+    @apply border-gold;
+  }
+
+  .bg-gold {
+    @apply bg-gold text-black;
+  }
+
+  /* Agent card base styling */
+  .agent-card {
+    @apply relative bg-gray-900 border border-gray-800 rounded-none p-6;
+  }
+
+  .agent-card:hover {
+    @apply border-gray-700;
+  }
+
+  /* Agent color accents */
+  .agent-card-pink {
+    @apply border-l-4 border-l-agent-pink;
+  }
+
+  .agent-card-pink:hover {
+    @apply shadow-lg shadow-agent-pink/20;
+  }
+
+  .agent-card-blue {
+    @apply border-l-4 border-l-agent-blue;
+  }
+
+  .agent-card-blue:hover {
+    @apply shadow-lg shadow-agent-blue/20;
+  }
+
+  .agent-card-green {
+    @apply border-l-4 border-l-agent-green;
+  }
+
+  .agent-card-green:hover {
+    @apply shadow-lg shadow-agent-green/20;
+  }
+
+  .agent-card-orange {
+    @apply border-l-4 border-l-agent-orange;
+  }
+
+  .agent-card-orange:hover {
+    @apply shadow-lg shadow-agent-orange/20;
+  }
+
+  .agent-card-purple {
+    @apply border-l-4 border-l-agent-purple;
+  }
+
+  .agent-card-purple:hover {
+    @apply shadow-lg shadow-agent-purple/20;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply px-4 py-2 font-semibold rounded-none border border-gold text-white transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-gold text-black hover:bg-opacity-90;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-gold hover:bg-gold/10;
+  }
+
+  /* Input styling */
+  .input {
+    @apply w-full bg-gray-900 border border-gray-800 text-white rounded-none px-4 py-2 focus:outline-none focus:border-gold;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-700 hover:bg-gray-600 rounded-none;
+  }
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+.slide-in-up {
+  animation: slide-in-up 0.3s ease-in-out;
+}
