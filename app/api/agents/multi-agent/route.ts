@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const results = await Promise.all(agentPromises)
 
     // Build response object
-    const agentResponses: Record<AgentName, string> = {}
+    const agentResponses: Record<AgentName, string> = {} as Record<AgentName, string>
     results.forEach(({ agentName, response }) => {
       agentResponses[agentName] = response
     })
